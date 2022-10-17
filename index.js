@@ -3,6 +3,7 @@
         playing = false;
         currentTime = 0;
         duration = 0;
+        volume = 0.4;
 
         constructor() {
             super();
@@ -17,8 +18,11 @@
             this.audioCtx = new AudioContext();
 
             this.track = this.audioCtx.createMediaElementSource(this.audio);
+            this.gainNode = this.audioCtx.createGain();
 
-            this.track.connect(this.audioCtx.destination);
+            this.track
+            .connect(this.gainNode)
+            .connect(this.audioCtx.destination);        
         }
 
         async togglePlay() {
@@ -49,8 +53,24 @@
             this.currentTimeElem.textContent = `${minutes}:${seconds}`;
         }
 
+        changeVolume() {
+            this.volume = this.volumeBar.value;
+            this.gainNode.gain.value = this.volume;
+        }
+
+        moveTo(value) {
+            this.audio.currentTime = value;
+        }
+
         attachEvents() {
             this.playPauseBtn.addEventListener("click", this.togglePlay.bind(this));
+
+            this.volumeBar.addEventListener("input", this.changeVolume.bind(this))
+            
+            this.progressBar.addEventListener("input", () => {
+                this.moveTo(this.progressBar.value);
+            })
+            
 
             this.audio.addEventListener("loadedmetadata", () => {
                 this.duration = this.audio.duration;
@@ -65,21 +85,30 @@
             this.audio.addEventListener("timeupdate", () => {
                 this.updateAudioTime(this.audio.currentTime);
             })
+
+            this.audio.addEventListener("ended", () => {
+                this.playing = false;
+                this.playPauseBtn.textContent = "play";
+            })
         }
 
         render() {
             this.shadowRoot.innerHTML = `
-            <audio controls src="https://github.com/SirGooseTheNaughty/dyotanya-portfolio/raw/main/media/sophie.mp3" style="display: none"></audio>    
+            <audio controls src="./audio.ogg" style="display: none"></audio>    
             <button class="play-btn" type="button">play</button>    
             <div class="progress-indicator">
                 <span class="current-time">0:00</span>
                 <input type="range" max="100" value="0" class="progress-bar"/>
                 <span class="duration">0:00</span>
-            </div>`  
-            ;
+            </div>
+            <div class="volume-bar">
+                <input type="range" min="0" max="2" step="0.01" value="${this.volume}" class="volume-field"/>
+            </div>
+            `;
 
             this.audio = this.shadowRoot.querySelector('audio');
             this.playPauseBtn = this.shadowRoot.querySelector('.play-btn');
+            this.volumeBar = this.shadowRoot.querySelector('.volume-field');
             this.progressIndicator = this.shadowRoot.querySelector('.progress-indicator');
             this.currentTimeElem = this.progressIndicator.children[0];
             this.progressBar = this.progressIndicator.children[1];

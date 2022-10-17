@@ -4,17 +4,50 @@
         currentTime = 0;
         duration = 0;
         volume = 0.4;
+        initialized = false;
+        title = "untitled"
+        src = undefined
 
         constructor() {
             super();
 
             this.attachShadow({mode: "open"})
             this.render();
-            this.intializeAudio();       
-            this.attachEvents();
+        
+        }
+
+        static get observedAttributes() {
+            return ["src", "title", "muted", "crossorigin", "loop", "preload"];
+        }
+
+        async attributeChangedCallback(name, oldValue, newValue) {
+
+            if (name === "src") {
+                if (this.playing) {
+                    await this.togglePlay();
+                }
+                this.src = newValue;
+                this.initialized = false;
+                this.render();
+            }
+            else if (name === "title") {
+                this.title = newValue;
+
+                if (this.titleElem) {
+                    this.titleElem.textContent = this.title;
+                }
+            }
+
+            if (!this.initialized) {
+                this.intializeAudio();
+            }
         }
 
         intializeAudio() {
+            if (this.initialized) return;
+
+            this.initialized = true;
+
             this.audioCtx = new AudioContext();
 
             this.track = this.audioCtx.createMediaElementSource(this.audio);
@@ -29,7 +62,9 @@
             this.track
             .connect(this.gainNode)
             .connect(this.analyzerNode)
-            .connect(this.audioCtx.destination);        
+            .connect(this.audioCtx.destination);  
+            
+            this.attachEvents();
         }
 
         async togglePlay() {
@@ -129,21 +164,25 @@
 
         render() {
             this.shadowRoot.innerHTML = `
-            <audio controls src="./audio.ogg" style="display: none"></audio>    
-            <button class="play-btn" type="button">play</button>
-            <canvas style="width: 100%; height: 20px;"></canvas>
-            <div class="progress-indicator">
-                <span class="current-time">0:00</span>
-                <input type="range" max="100" value="0" class="progress-bar"/>
-                <span class="duration">0:00</span>
-            </div>
-            <div class="volume-bar">
-                <input type="range" min="0" max="2" step="0.01" value="${this.volume}" class="volume-field"/>
-            </div>
+            <figure class="audio-palyer">
+                <figcaption class="audio-name">${this.title}</figcaption>
+                <audio src="${this.src}" style="display: none"></audio>    
+                <button class="play-btn" type="button">play</button>
+                <canvas style="width: 100%; height: 20px;"></canvas>
+                <div class="progress-indicator">
+                    <span class="current-time">0:00</span>
+                    <input type="range" max="100" value="0" class="progress-bar"/>
+                    <span class="duration">0:00</span>
+                </div>
+                <div class="volume-bar">
+                    <input type="range" min="0" max="2" step="0.01" value="${this.volume}" class="volume-field"/>
+                </div>
+            </figure>
             `;
 
             this.audio = this.shadowRoot.querySelector('audio');
             this.playPauseBtn = this.shadowRoot.querySelector('.play-btn');
+            this.titleElem = this.shadowRoot.querySelector('.audio-name');
             this.canvas = this.shadowRoot.querySelector('canvas');
             this.volumeBar = this.shadowRoot.querySelector('.volume-field');
             this.progressIndicator = this.shadowRoot.querySelector('.progress-indicator');

@@ -1,82 +1,76 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Roboto", sans-serif;
-}
-
-.content {
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 100vh;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgb(227, 226, 226);
 }
 
-.player {
-    background: #fff;
-    border-radius: 30px;
-    max-width: 380px;
-    width: 100%;
-    padding: 25px;
+.circular-menu {
+    position: relative;
+    width: 300px;
+    height: 300px;
 }
 
-.cover {
-    display: flex;
-    justify-content: center;
-    margin: 25px 0;
-}
-
-.cover__image.active {
-    animation: rotateAnim 3s linear infinite;
-}
-
-.title {
-    font-style: normal;
-    font-weight: bold;
-    font-size: 24px;
-    line-height: 28px;
-    color: #1F3555;
-    text-align: center;
-}
-.progress__container {
-    background: rgb(232, 228, 228);
-    border-radius: 5px;
-    width: 100%;
-    height: 10px;
-    margin-top: 63px;
+.circular-menu__item {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    cursor: pointer;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    text-decoration: none;
+    color: #f6f6e9;
+    background-color: #13344c;
+    transition: 0.3s;
+    outline: none;
 }
 
-.progress {
-    background: #1F3555;
-    border-radius: 5px;
+.circual-menu__button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #13344c;
+    outline: none;
+}
+
+.circular-menu__lines,
+.circular-menu__lines::before,
+.circular-menu__lines::after {
+    position: absolute;
+    width: 40px;
     height: 6px;
+    background-color: #f6f6e9;
+    transition: 0.3s;
 }
 
-.buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 184px;
-    width: 100%;
-    margin: 0 auto;
-    margin-top: 45px;
+.circular-menu__lines {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: transparent;
 }
 
-.btn {
-    cursor: pointer;
+.circular-menu__lines::before {
+    content: "";
 }
 
-@keyframes rotateAnim {
-    from {
-        transform: rotate(0);
-    }
+.circular-menu__lines::after {
+    content: "";
+    transform: rotate(90deg);
+}
 
-    to {
-        transform: rotate(360deg);
-    }
+.circual-menu__button_active .circular-menu__lines::before {
+    transform: rotate(45deg);
+}
+
+.circual-menu__button_active .circular-menu__lines::after {
+    transform: rotate(-45deg);
 }
